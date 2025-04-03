@@ -1,6 +1,8 @@
 spring:
   application:
     name: audition-api
+    api:
+      baseUrl: "https://jsonplaceholder.typicode.com"
   config:
     import: "optional:configserver:"
   main:
@@ -22,7 +24,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*' #TODO enable only info and health for security purposes. Consider that we may want to still access other actuator endpoints securely.
+        include: health, info
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

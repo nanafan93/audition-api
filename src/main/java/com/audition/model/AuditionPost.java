@@ -1,15 +1,18 @@
 package com.audition.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public class AuditionPost {
 
     private int userId;
     private int id;
     private String title;
     private String body;
-
+    private List<PostComment> comments;
 }

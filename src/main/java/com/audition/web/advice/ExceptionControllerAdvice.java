@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
 import io.micrometer.common.util.StringUtils;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,27 +19,33 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 
+@Getter
 @ControllerAdvice
 public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
+    private final AuditionLogger auditionLogger;
     public static final String DEFAULT_TITLE = "API Error Occurred";
-    private static final Logger LOG = LoggerFactory.getLogger(ExceptionControllerAdvice.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionControllerAdvice.class);
     private static final String ERROR_MESSAGE = " Error Code from Exception could not be mapped to a valid HttpStatus Code - ";
     private static final String DEFAULT_MESSAGE = "API Error occurred. Please contact support or administrator.";
 
-    @Autowired
-    private AuditionLogger logger;
+    public ExceptionControllerAdvice(
+        final @Autowired AuditionLogger auditionLogger
+    ) {
+        super();
+        this.auditionLogger = auditionLogger;
+    }
+
 
     @ExceptionHandler(HttpClientErrorException.class)
     ProblemDetail handleHttpClientException(final HttpClientErrorException e) {
         return createProblemDetail(e, e.getStatusCode());
-
     }
 
 
     @ExceptionHandler(Exception.class)
     ProblemDetail handleMainException(final Exception e) {
-        // TODO Add handling for Exception
+        auditionLogger.logErrorWithException(LOGGER, e.getMessage(), e);
         final HttpStatusCode status = getHttpStatusCodeFromException(e);
         return createProblemDetail(e, status);
 
@@ -46,7 +53,9 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(SystemException.class)
     ProblemDetail handleSystemException(final SystemException e) {
-        // TODO `Add Handling for SystemException
+        if (LOGGER.isErrorEnabled()) {
+            auditionLogger.error(LOGGER, e.getMessage());
+        }
         final HttpStatusCode status = getHttpStatusCodeFromSystemException(e);
         return createProblemDetail(e, status);
 
@@ -76,7 +85,9 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
         try {
             return HttpStatusCode.valueOf(exception.getStatusCode());
         } catch (final IllegalArgumentException iae) {
-            logger.info(LOG, ERROR_MESSAGE + exception.getStatusCode());
+            if (LOGGER.isInfoEnabled()) {
+                auditionLogger.info(LOGGER, ERROR_MESSAGE + exception.getStatusCode());
+            }
             return INTERNAL_SERVER_ERROR;
         }
     }

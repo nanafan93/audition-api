@@ -1,4 +1,7 @@
 spring:
+  application:
+    api:
+      baseUrl: "http://localhost:8080"
   config:
     import: "optional:configserver:"
   autoconfigure:
