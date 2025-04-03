@@ -24,7 +24,6 @@ class ExceptionControllerAdviceTest {
         final var e = new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad juju");
         final var res = exceptionControllerAdvice.handleHttpClientException(e);
         final var exp = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        exp.setTitle("API Error Occurred");
         exp.setDetail("400 Bad juju");
         Assertions.assertEquals(exp, res);
     }
@@ -34,7 +33,6 @@ class ExceptionControllerAdviceTest {
         final var e = new IllegalArgumentException("something");
         final var x = exceptionControllerAdvice.handleMainException(e);
         final var expected = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        expected.setTitle("API Error Occurred");
         expected.setDetail("something");
         Assertions.assertEquals(expected, x);
     }

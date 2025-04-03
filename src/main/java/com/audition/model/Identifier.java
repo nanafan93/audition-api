@@ -22,7 +22,7 @@ public final class Identifier {
             }
             return parsedId;
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(String.format("Id must be a valid Integer, received [%s] [%s]", id), e);
+            throw new IllegalArgumentException(String.format("Id must be a valid Integer, received [%s]", id), e);
 
         }
     }

@@ -10,6 +10,7 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -51,6 +52,12 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    ProblemDetail handleIllegalArgumentException(final IllegalArgumentException e) {
+        auditionLogger.logErrorWithException(LOGGER, e.getMessage(), e);
+        return createProblemDetail(e, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(SystemException.class)
     ProblemDetail handleSystemException(final SystemException e) {
         if (LOGGER.isErrorEnabled()) {
@@ -68,8 +75,6 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
         problemDetail.setDetail(getMessageFromException(exception));
         if (exception instanceof SystemException) {
             problemDetail.setTitle(((SystemException) exception).getTitle());
-        } else {
-            problemDetail.setTitle(DEFAULT_TITLE);
         }
         return problemDetail;
     }
